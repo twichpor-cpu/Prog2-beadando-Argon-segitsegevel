@@ -1,162 +1,77 @@
 @startuml
 skinparam classAttributeIconSize 0
-skinparam monochrome false
-skinparam packageStyle rectangle
 
-package "hu.prog2.catalog.domain" {
-    interface Describable {
-        + getId() : int
-        + getDescription() : String
-    }
-
-    enum ProductCategory {
-        ELECTRONICS
-        FOOD
-        - displayName : String
-        + getDisplayName() : String
-    }
-
-    class InvalidProductException <<Exception>> {
-        + InvalidProductException(message : String)
-        + InvalidProductException(message : String, cause : Throwable)
-    }
-
-    abstract class Product {
-        - {static} createdProductCount : int
-        - id : int
-        - name : String
-        - price : double
-        - stock : int
-        - category : ProductCategory
-        # Product(id : int, name : String, price : double, stock : int, category : ProductCategory)
-        + <<final>> validateBasicFields(id : int, name : String, price : double, stock : int, category : ProductCategory) : void
-        + {static} getCreatedProductCount() : int
-        + {static} resetCreatedProductCount() : void
-        + getId() : int
-        + getName() : String
-        + setName(name : String) : void
-        + getPrice() : double
-        + setPrice(price : double) : void
-        + getStock() : int
-        + setStock(stock : int) : void
-        + getCategory() : ProductCategory
-        + getTotalStockValue() : double
-        + compareTo(other : Product) : int
-        + {abstract} getDescription() : String
-    }
-
-    class ElectronicProduct {
-        - warrantyMonths : int
-        + ElectronicProduct(id : int, name : String, price : double, stock : int, warrantyMonths : int)
-        + getWarrantyMonths() : int
-        + setWarrantyMonths(warrantyMonths : int) : void
-        + getDescription() : String
-    }
-
-    class FoodProduct {
-        - shelfLifeDays : int
-        - organic : boolean
-        + FoodProduct(id : int, name : String, price : double, stock : int, shelfLifeDays : int, organic : boolean)
-        + getShelfLifeDays() : int
-        + setShelfLifeDays(shelfLifeDays : int) : void
-        + isOrganic() : boolean
-        + setOrganic(organic : boolean) : void
-        + getDescription() : String
-    }
+abstract class Product {
+    - {static} productCount : int
+    - id : int
+    - name : String
+    - price : double
+    - stock : int
+    + Product(id : int, name : String, price : double, stock : int)
+    + getId() : int
+    + getName() : String
+    + getPrice() : double
+    + getStock() : int
+    + compareTo(other : Product) : int
+    + {abstract} getDescription() : String
 }
 
-package "hu.prog2.catalog.strategy" {
-    interface ProductSortStrategy {
-        + getStrategyName() : String
-        + sort(products : List<Product>) : List<Product>
-    }
-
-    class PriceAscendingSortStrategy {
-        + getStrategyName() : String
-        + sort(products : List<Product>) : List<Product>
-    }
-
-    class PriceDescendingSortStrategy {
-        + getStrategyName() : String
-        + sort(products : List<Product>) : List<Product>
-    }
-
-    class NameSortStrategy {
-        + getStrategyName() : String
-        + sort(products : List<Product>) : List<Product>
-    }
-
-    class StockSortStrategy {
-        + getStrategyName() : String
-        + sort(products : List<Product>) : List<Product>
-    }
+class ElectronicProduct {
+    - warrantyMonths : int
+    + ElectronicProduct(id : int, name : String, price : double, stock : int, warrantyMonths : int)
+    + getWarrantyMonths() : int
+    + getDescription() : String
 }
 
-package "hu.prog2.catalog.service" {
-    class ProductCatalog {
-        - catalogName : String
-        - products : List<Product>
-        - sortStrategy : ProductSortStrategy
-        + ProductCatalog(catalogName : String)
-        + setSortStrategy(sortStrategy : ProductSortStrategy) : void
-        + getSortStrategy() : ProductSortStrategy
-        + addProduct(product : Product) : void
-        + removeProduct(id : int) : boolean
-        + findProduct(id : int) : Product
-        + findProduct(name : String) : Product
-        + findByCategory(category : ProductCategory) : List<Product>
-        + getSortedProducts() : List<Product>
-        + getMostExpensiveProduct() : Product
-        + calculateTotalInventoryValue() : double
-        + loadDefaultSampleProducts() : void
-    }
+class FoodProduct {
+    - shelfLifeDays : int
+    + FoodProduct(id : int, name : String, price : double, stock : int, shelfLifeDays : int)
+    + getShelfLifeDays() : int
+    + getDescription() : String
 }
 
-package "hu.prog2.catalog.persistence" {
-    interface CatalogRepository {
-        + save(products : List<Product>, filePath : Path) : void
-        + load(filePath : Path) : List<Product>
-    }
-
-    class CsvCatalogRepository {
-        + save(products : List<Product>, filePath : Path) : void
-        + load(filePath : Path) : List<Product>
-    }
-
-    class BinaryCatalogRepository {
-        + save(products : List<Product>, filePath : Path) : void
-        + load(filePath : Path) : List<Product>
-    }
+class InvalidProductException <<Exception>> {
+    + InvalidProductException(message : String)
 }
 
-package "hu.prog2.catalog.ui" {
-    class ConsoleApp {
-        - catalog : ProductCatalog
-        - csvRepository : CatalogRepository
-        - binaryRepository : CatalogRepository
-        + {static} main(args : String[]) : void
-        + initializeCatalog() : void
-        + runDemo() : void
-        + runInteractiveMenu() : void
-    }
+interface ProductSortStrategy {
+    + sort(products : List<Product>) : void
 }
 
-Describable <|.. Product
+class PriceSortStrategy {
+    + sort(products : List<Product>) : void
+}
+
+class NameSortStrategy {
+    + sort(products : List<Product>) : void
+}
+
+class ProductCatalog {
+    - products : ArrayList<Product>
+    - sortStrategy : ProductSortStrategy
+    + setSortStrategy(sortStrategy : ProductSortStrategy) : void
+    + addProduct(product : Product) : void
+    + sortProducts() : void
+    + findProduct(id : int) : Product
+    + findProduct(name : String) : Product
+    + calculateTotalValue() : double
+}
+
+class FileStorage {
+    + saveToFile(products : ArrayList<Product>, fileName : String) : void
+    + loadFromFile(fileName : String) : ArrayList<Product>
+}
+
+class ConsoleApp {
+    + {static} main(args : String[]) : void
+}
+
 Product <|-- ElectronicProduct
 Product <|-- FoodProduct
-Product "1" *-- "1" ProductCategory : category
-
-ProductSortStrategy <|.. PriceAscendingSortStrategy
-ProductSortStrategy <|.. PriceDescendingSortStrategy
+ProductSortStrategy <|.. PriceSortStrategy
 ProductSortStrategy <|.. NameSortStrategy
-ProductSortStrategy <|.. StockSortStrategy
-
-ProductCatalog "1" o-- "0..*" Product : products
-ProductCatalog "1" --> "1" ProductSortStrategy : sortStrategy
-
-CatalogRepository <|.. CsvCatalogRepository
-CatalogRepository <|.. BinaryCatalogRepository
-
-ConsoleApp "1" *-- "1" ProductCatalog : catalog
-ConsoleApp "1" --> "2" CatalogRepository : repositories
+ProductCatalog "1" o-- "0..*" Product
+ProductCatalog "1" --> "1" ProductSortStrategy
+ConsoleApp --> ProductCatalog
+ConsoleApp --> FileStorage
 @enduml

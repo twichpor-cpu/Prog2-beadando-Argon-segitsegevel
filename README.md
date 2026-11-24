@@ -1,123 +1,65 @@
-# Webáruház Termékkatalógus és Rendezési Rendszer (Prog 2 Projektmunka)
+# Termékkatalógus Projekt (Prog 2 Beadandó)
 
-Ez a projekt a **Programozás 2 (Java OOP Projectwork Assignment)** tárgyra készült, és egy moduláris, objektumorientált **Webáruház Termékkatalógus és Rendezési Rendszert** valósít meg Java nyelven, Maven build rendszerrel és JUnit 5 egységtesztekkel. A téma közvetlenül a kurzus *Java OOP — Gyakorló feladatok (3. feladat: Termékkatalógus és rendezés + Extra kihívás)* feladatsorára épül, kiegészítve a projektkiírás összes technikai és tervezési követelményével.
+Egyszerű Java OOP konzolos alkalmazás egy bolt termékkatalógusának kezelésére (3. gyakorló feladat alapján).
 
----
+## 1. Projekt leírás
+A programban elektronikai termékeket (`ElectronicProduct` - garanciaidővel) és élelmiszereket (`FoodProduct` - szavatossági idővel) lehet tárolni egy közös `ProductCatalog` listában. A termékeket ár vagy név szerint lehet rendezni, ID és név alapján keresni, valamint szöveges fájlba (`data/catalog.csv`) menteni.
 
-## 1. Projekt összefoglaló és problémafelvetés (Problem Statement)
+## 2. Előfeltételek
+- Java 21
+- Maven
 
-- **Felhasználók:** Webáruház-üzemeltetők, raktárkezelők és vásárlók.
-- **Felhasználói cél:** Különböző kategóriájú termékek (elektronikai eszközök és élelmiszerek) egységes nyilvántartása, gyors keresése (azonosító vagy név alapján), többféle szempont szerinti rendezése (ár szerint növekvő/csökkenő, név, raktárkészlet), készletérték-statisztikák lekérdezése, valamint az adatok futások közötti megőrzése (CSV és bináris fájlokban).
-- **Megoldott probléma:** A különböző attribútumokkal rendelkező terméktípusok (garanciaidős `ElectronicProduct` és szavatossági idős / bio `FoodProduct`) közös absztrakció (`Describable`, `Product`) mögé szervezése, az üzleti szabályok szigorú ellenőrzése saját kivétellel (`InvalidProductException`), valamint a rendezési algoritmusok futásidejű rugalmas cserélhetősége a **Strategy (Stratégia) tervezési minta** segítségével.
+## 3. Fordítás, tesztelés és futtatás
 
----
-
-## 2. Előfeltételek (Prerequisites)
-
-- **Java Development Kit (JDK):** Java 21 (vagy újabb)
-- **Build eszköz:** Apache Maven 3.8+
-- **Verziókezelő:** Git
-
----
-
-## 3. Fordítás, tesztelés és futtatás (Build, Test & Run Commands)
-
-Klónozd a repository-t, majd a projekt gyökérkönyvtárában futtasd az alábbi parancsokat:
-
-### Projekt fordítása és JUnit 5 tesztek futtatása
+**Tesztek futtatása:**
 ```bash
 mvn clean test
 ```
 
-### Automatikus bemutató mód futtatása (`--demo`)
-Bemutatja az összes rendezési stratégiát, a polimorfizmust, a túlterhelt keresést, a készletérték-számítást, a saját kivétel kezelését és a fájlba mentést:
-```bash
-mvn exec:java -Dexec.args="--demo"
-```
-
-### Interaktív konzolos menü indítása
+**Program indítása (interaktív menü):**
 ```bash
 mvn exec:java
 ```
 
-### Futtatható JAR csomagolása és indítása
+**Gyors bemutató futtatása:**
 ```bash
-mvn package
-java -jar target/webshop-catalog-1.0.0.jar --demo
+mvn exec:java -Dexec.args="--demo"
 ```
 
----
-
-## 4. Minta használat és kimenet (Sample Usage)
-
-A `mvn exec:java -Dexec.args="--demo"` parancs futtatásakor a program betölti a 10 mintaterméket (`5 db ElectronicProduct` és `5 db FoodProduct`), majd egymás után bemutatja a funkciókat:
-
+## 4. Minta kimenet (`--demo`)
 ```text
-=========================================================================
-   Prog2 Webáruház Katalógus - AUTOMATIKUS BEMUTATÓ (--demo)
-=========================================================================
+Adatok betoltve fajlbol (4 db).
 
---- 1. Ár szerint növekvő rendezés (Comparable / PriceAscendingSortStrategy) ---
-Aktív stratégia: Ár szerint növekvő (Comparable)
-  [#201] Bio Zabpehely (500g) (Élelmiszer) | Ár: 890.00 Ft | Készlet: 120 db | Szavatosság: 365 nap | Bio: Igen
-  [#205] Bio Mandulatej (1L) (Élelmiszer) | Ár: 1190.00 Ft | Készlet: 60 db | Szavatosság: 180 nap | Bio: Igen
-  ...
-  [#101] ASUS ROG Gamer Laptop (Elektronika) | Ár: 489990.00 Ft | Készlet: 5 db | Garancia: 36 hó
+--- Rendezve ar szerint (PriceSortStrategy) ---
+Elelmiszer [ID=3, Nev=Alma, Ar=500.0, Keszlet=100, Szavatossag=14 nap]
+Elelmiszer [ID=4, Nev=Kave, Ar=3500.0, Keszlet=30, Szavatossag=180 nap]
+Elektronika [ID=2, Nev=Eger, Ar=8000.0, Keszlet=20, Garancia=12 ho]
+Elektronika [ID=1, Nev=Laptop, Ar=300000.0, Keszlet=5, Garancia=24 ho]
 
---- 5. Statisztikák és összesítések ---
-Legdrágább termék: [#101] ASUS ROG Gamer Laptop (Elektronika) | Ár: 489990.00 Ft | Készlet: 5 db | Garancia: 36 hó
-Teljes raktárkészlet értéke: 6779430.00 Ft
-Létrehozott termékpéldányok száma (statikus számláló): 10 db
-
---- 6. Túlterhelt keresés (findProduct(int) és findProduct(String)) ---
-Keresés ID=103 alapján: [#103] Logitech MX Master 3S Egér (Elektronika) | Ár: 39990.00 Ft | Készlet: 25 db | Garancia: 24 hó
-Keresés 'Kávé' névrészlet alapján: [#202] Prémium Arabica Szemes Kávé (1kg) (Élelmiszer) | Ár: 7490.00 Ft | Készlet: 45 db | Szavatosság: 540 nap | Bio: Nem
-
---- 7. Saját kivétel (InvalidProductException) kezelésének bemutatása ---
-Elkapott üzleti szabály kivétel: A termék ára nem lehet negatív (kapott: -5000.0).
+--- Rendezve nev szerint (NameSortStrategy) ---
+Elelmiszer [ID=3, Nev=Alma, Ar=500.0, Keszlet=100, Szavatossag=14 nap]
+Elektronika [ID=2, Nev=Eger, Ar=8000.0, Keszlet=20, Garancia=12 ho]
+Elelmiszer [ID=4, Nev=Kave, Ar=3500.0, Keszlet=30, Szavatossag=180 nap]
+Elektronika [ID=1, Nev=Laptop, Ar=300000.0, Keszlet=5, Garancia=24 ho]
 ```
 
----
+## 5. Megvalósított OOP követelmények
+- **Encapsulation (Egységbezárás):** `private` mezők és getterek a `Product` és leszármazott osztályokban, ellenőrzés a konstruktorban.
+- **Abstraction (Absztrakció):** `Product` absztrakt ősosztály (`abstract String getDescription()`) és `ProductSortStrategy` interfész.
+- **Inheritance & Polymorphism (Öröklődés és polimorfizmus):** `ElectronicProduct` és `FoodProduct` a `Product`-ból származnak, és felülírják a `getDescription()` metódust. Túlterhelt keresés: `findProduct(int id)` és `findProduct(String name)`.
+- **Relationships (Kapcsolatok):** A `ProductCatalog` aggregációval (`ArrayList<Product>`) tárolja a termékeket.
+- **Collections & Generics:** `ArrayList<Product>`, természetes rendezés `Comparable<Product>`-tal (ár szerint), név szerinti rendezés lambda kifejezéssel.
+- **Exceptions (Kivételkezelés):** Saját `InvalidProductException` kivétel hibás (pl. negatív) ár, készlet vagy duplikált ID esetén.
+- **Persistence (Fájlkezelés):** `FileStorage` osztály `BufferedReader` és `BufferedWriter` + `try-with-resources` használatával (`data/catalog.csv`).
 
-## 5. Megvalósított technikai követelmények (Implemented Requirements)
+## 6. Tervezési minta (Design Pattern): Strategy
+- **Minta neve:** Strategy (Stratégia)
+- **Osztályok:** `ProductSortStrategy` (interfész), `PriceSortStrategy` és `NameSortStrategy` (konkrét stratégiák), `ProductCatalog` (Context).
+- **Előny:** A `ProductCatalog` osztályban a `setSortStrategy(...)` metódussal egyszerűen lecserélhető, hogy ár vagy név szerint rendezze a listát.
 
-| Követelmény terület | Megvalósítás a projektben |
-| :--- | :--- |
-| **Egységbezárás (Encapsulation)** | Minden osztályban `private` adattagok, érvényes állapotot garantáló konstruktorok, ellenőrzött getter/setter metódusok és `final validateBasicFields(...)` metódus a `Product` osztályban. Statikus példányszámláló (`Product.getCreatedProductCount()`). |
-| **Absztrakció (Abstraction)** | `Describable` (domain interfész), `Product` (absztrakt ősosztály), `ProductSortStrategy` (rendezési stratégia interfész), `CatalogRepository` (perzisztencia interfész). |
-| **Öröklődés és polimorfizmus (Inheritance & Polymorphism)** | Az `ElectronicProduct` és a `FoodProduct` konkrét osztályok a `Product` absztrakt osztályból öröklődnek, és futásidőben polimorf módon írják felül a `getDescription()` metódust. Metódus-túlterhelés: `findProduct(int id)` és `findProduct(String name)`. |
-| **Kapcsolatok (Relationships)** | **Aggregáció:** `ProductCatalog` (1) o-- (0..*) `Product`. **Kompozíció:** `Product` (1) *-- (1) `ProductCategory`. **Asszociáció / Függőség:** `ProductCatalog` (1) --> (1) `ProductSortStrategy`. |
-| **Kollekciók és generikusok (Collections & Generics)** | `List<Product>`, `ArrayList<Product>`, természetes rendezés `Comparable<Product>`-tal, egyedi rendezések `Comparator<Product>`-tal és lambda-kifejezéssel (`(p1, p2) -> Double.compare(p2.getPrice(), p1.getPrice())`). |
-| **Kivételkezelés (Exceptions)** | Saját ellenőrzött üzleti kivétel: `InvalidProductException` (negatív ár, negatív készlet, érvénytelen ID, üres név, negatív garanciaidő, duplikált termékazonosító vagy hibás CSV sor esetén). |
-| **Perzisztencia (Persistence)** | Szöveges CSV (`CsvCatalogRepository` -> `data/catalog.csv`) és Java bináris objektum-szerializáció (`BinaryCatalogRepository` -> `data/catalog.bin`), mindkettő `try-with-resources` blokkokkal. |
-| **Egységtesztek (Testing)** | 10 átfogó JUnit 5 teszteset a `src/test/java/hu/prog2/catalog/ProductCatalogTest.java` osztályban. |
+## 7. Dokumentáció
+- [`docs/uml-class-diagram.md`](docs/uml-class-diagram.md) és [`docs/uml-class-diagram.puml`](docs/uml-class-diagram.puml)
+- [`docs/user-stories.md`](docs/user-stories.md)
 
----
-
-## 6. Alkalmazott tervezési minta: Strategy (Stratégia)
-
-- **Tervezési minta neve:** **Strategy (Stratégia)**
-- **Megoldott tervezési probléma:** A termékkatalógust különböző üzleti szempontok szerint kell rendezni (ár szerint növekvő, ár szerint csökkenő, név szerint, raktárkészlet szerint). Ha ezeket feltételes elágazásokkal (`if-else` / `switch`) égetnénk bele a `ProductCatalog` osztályba, az megsértené a *Single Responsibility* és *Open/Closed* elveket.
-- **Résztvevő osztályok:**
-  - `ProductSortStrategy` (Strategy interfész a `hu.prog2.catalog.strategy` csomagban)
-  - `PriceAscendingSortStrategy` (ConcreteStrategy 1 — `Comparable<Product>` alapú)
-  - `PriceDescendingSortStrategy` (ConcreteStrategy 2 — Lambda `Comparator` alapú)
-  - `NameSortStrategy` (ConcreteStrategy 3 — Név szerinti `Comparator<Product>`)
-  - `StockSortStrategy` (ConcreteStrategy 4 — Raktárkészlet szerinti `Comparator<Product>`)
-  - `ProductCatalog` (Context — tárolja az aktuális `ProductSortStrategy` példányt, amely a `setSortStrategy(...)` metódussal futásidőben lecserélhető).
-- **Előny a tervezésben:** Új rendezési algoritmus hozzáadásához nem kell módosítani a `ProductCatalog` osztályt, és a rendezési irányelv futásidőben dinamikusan váltható.
-
----
-
-## 7. Dokumentáció és Csomagstruktúra
-
-- [`docs/uml-class-diagram.md`](docs/uml-class-diagram.md) — Problémafelvetés, Mermaid UML osztálydiagram, Strategy minta részletes kifejtése, tervezési döntések és korlátok.
-- [`docs/uml-class-diagram.puml`](docs/uml-class-diagram.puml) — Szerkeszthető PlantUML osztálydiagram forrásfájl.
-- [`docs/user-stories.md`](docs/user-stories.md) — Felhasználói történetek (User Stories) és elfogadási kritériumok.
-- [`LICENSE`](LICENSE) — MIT Licenc.
-
----
-
-## 8. Közreműködő (Contributor)
-
-- **Készítette:** twichpor-cpu (Programozás 2 — Java OOP Projektmunka, 2026)
+## 8. Készítő
+- twichpor-cpu
