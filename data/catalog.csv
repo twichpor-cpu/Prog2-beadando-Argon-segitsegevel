@@ -1,0 +1,11 @@
+CATEGORY;ID;NAME;PRICE;STOCK;EXTRA_1;EXTRA_2
+ELECTRONICS;101;ASUS ROG Gamer Laptop;489990.00;5;36;
+ELECTRONICS;102;Samsung 27" IPS Monitor;74990.00;14;24;
+ELECTRONICS;103;Logitech MX Master 3S Egér;39990.00;25;24;
+ELECTRONICS;104;Keychron K8 Mechanikus Billentyűzet;42500.00;12;12;
+ELECTRONICS;105;Sony WH-1000XM5 Fejhallgató;129990.00;8;24;
+FOOD;201;Bio Zabpehely (500g);890.00;120;365;true
+FOOD;202;Prémium Arabica Szemes Kávé (1kg);7490.00;45;540;false
+FOOD;203;Házi Akácméz (500g);3290.00;30;730;true
+FOOD;204;Belga Étcsokoládé 85%;1450.00;80;270;false
+FOOD;205;Bio Mandulatej (1L);1190.00;60;180;true
